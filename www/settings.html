@@ -77,22 +77,21 @@
                       aria-describedby="atCommandInput" x-model="atcmd" @keydown.enter="sendATCommand()" />
                     <div id="atCommandInputHelper" class="form-text">
                       Separate multiple commands with commas (,)
-		    	AT+QENG="neighbourcell" | Check neighboring cells.
-			    
+		    <div id="atCommandInputHelper" class="form-text">
+			AT+QENG="neighbourcell" | Check neighboring cells.
+			<div id="atCommandInputHelper" class="form-text">
 			AT+QNWPREFCFG="mode_pref",LTE:NR5G | Lock LTE and 5G mode
-			    
+			<div id="atCommandInputHelper" class="form-text">	
 			AT+QNWPREFCFG="mode_pref",AUTO | AUTO mode
-			    
+			<div id="atCommandInputHelper" class="form-text">
 			AT+CGDCONT? | Check APN
-			    
+			<div id="atCommandInputHelper" class="form-text">	
 			AT+CGDCONT=1,"IP","APN" | Set APN
-			    
 			AT+CGSN | Show IMEI
-			    
+			<div id="atCommandInputHelper" class="form-text">	
 			AT+EGMR=1,7,"Your IMEI" | Change IMEI
-			    
 			AT+CGPADDR | Check IP Wan
-			    
+			<div id="atCommandInputHelper" class="form-text">	
 			AT+CFUN=1,1 | Restart Modem
 			    
                     </div>
