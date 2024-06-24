@@ -1,0 +1,560 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="light">
+
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>RG500Q-EA</title>
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="stylesheet" href="css/bootstrap.min.css" />
+
+  <!-- Logo -->
+  <link rel="simpleadmin-logo" href="favicon.ico" />
+
+  <!-- Import Bootstrap Javascript -->
+  <script src="js/bootstrap.bundle.min.js"></script>
+  <script src="js/alpinejs.min.js" defer></script>
+</head>
+
+<body>
+  <main>
+    <div class="container my-4" x-data="simpleSettings()">
+      <nav class="navbar navbar-expand-lg mt-2">
+        <div class="container-fluid">
+          <a class="navbar-brand" href="/"><span class="mb-0 h4">RG500Q-EA</span></a>
+          <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarText"
+            aria-controls="navbarText" aria-expanded="false" aria-label="Toggle navigation">
+            <span class="navbar-toggler-icon"></span>
+          </button>
+          <div class="collapse navbar-collapse" id="navbarText">
+            <ul class="navbar-nav me-auto mb-2 mb-lg-0">
+              <li class="nav-item">
+                <a class="nav-link" href="/">Information</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/network.html">Lock Band</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link active" href="/settings.html" aria-current="page">AT Command</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/sms.html">SMS</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/watchat.html">watchat</a>
+		<li class="nav-item">
+                <a class="nav-link" href="/console">TTY</a>
+              </li>
+              <li class="nav-item">
+                <a class="nav-link" href="/deviceinfo.html">Device Infor</a>
+		<li class="nav-item"><a class="nav-link" href="/logout.html">Logout</a>
+              </li>
+            </ul>
+            <span class="navbar-text">
+              <button class="btn btn-link text-reset" id="darkModeToggle">
+                Dark mode
+              </button>
+            </span>
+          </div>
+        </div>
+      </nav>
+
+      <div class="row mt-5 mb-4">
+        <div class="col">
+          <div class="card">
+            <div class="card-header">AT Thiết Bị</div>
+            <div class="card-body">
+              <div class="card-text">
+                <div class="form-floating mb-4">
+                  <!-- AT command output -->
+                  <textarea class="form-control" placeholder="AT" id="atOutputBox" style="height: 210px"
+                    x-text="atCommandResponse" readonly>
+                    <label for="floatingTextarea">ATI</label>
+                    </textarea>
+                </div>
+                <div>
+                  <div class="col-md-4 mb-3">
+                    <label for="exampleInputEmail1" class="form-label">AT</label>
+                    <input type="text" class="form-control" id="atCommandInput" placeholder="ATI"
+                      aria-describedby="atCommandInput" x-model="atcmd" @keydown.enter="sendATCommand()" />
+                    <div id="atCommandInputHelper" class="form-text">
+                      Phân cách nhiều lệnh bằng dấu phẩy (,)
+                    </div>
+                  </div>
+                  <div class="d-grid gap-2 d-md-flex justify-content-md-start">
+                    <button class="btn btn-primary me-md-2" type="button" @click="sendATCommand()"
+                      :disabled="isLoading">
+                      Send
+                    </button>
+                    <button class="btn btn-danger" type="button" @click="clearResponses()" :disabled="isClean">
+                      Delete
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="row">
+        <div class="col">
+          <div class="card">
+            <div class="card-header">Utilities</div>
+            <div class="card-body">
+              <div class="card-text">
+                <div class="table-responsive">
+                  <table class="table">
+                    <tbody>
+                      <tr>
+                        <th scope="row">Restart</th>
+                        <td>
+                          <button type="submit" class="btn btn-danger" @click="showRebootModal()" :disabled="isLoading">
+                            Restart
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Reset AT</th>
+                        <td>
+                          <button type="submit" class="btn btn-danger" @click="resetATCommands()" :disabled="isLoading">
+                            Reinstall
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Streaming data</th>
+                        <td>
+                          <select class="form-select" id="ipPassModeSelect" x-model="ipPassMode">
+                            <option selected>Transparent Transmission Mode </option>
+                            <option value="ETH">ETH</option>
+                            <option value="USB">USB (ECM/RNDIS)</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button type="submit" class="btn btn-primary" @click="ipPassThroughEnable()"
+                            x-show="ipPassStatus === false" :disabled="isLoading">
+                            Allow
+                          </button>
+                          <button type="submit" class="btn btn-danger" @click="ipPassThroughDisable()"
+                            x-show="ipPassStatus === true" :disabled="isLoading">
+                            Disable
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Modem protocol</th>
+                        <td>
+                          <select class="form-select" id="usbNetModeSelect" x-model="usbNetMode">
+                            <option selected x-text="currentUsbNetMode"></option>
+                            <option value="RMNET">RMNET</option>
+                            <option value="ECM">ECM (Khuyến Nghị)</option>
+                            <option value="MBIM">MBIM</option>
+                            <option value="RNDIS">RNDIS</option>
+                          </select>
+                        </td>
+                        <td>
+                          <button type="submit" class="btn btn-primary" @click="usbNetModeChanger()"
+                            :disabled="isLoading">
+                            Change
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Proxy DNS<sup>V6</sup>on board</th>
+                        <td>
+                          <button type="submit" class="btn btn-primary" @click="onBoardDNSV6ProxyEnable()"
+                            x-show="DNSV6ProxyStatus === false" :disabled="isLoading">
+                            Allow
+                          </button>
+                          <button type="submit" class="btn btn-danger" @click="onBoardDNSV6ProxyDisable()"
+                            x-show="DNSV6ProxyStatus === true" :disabled="isLoading">
+                            Disable
+                          </button>
+                        </td>
+                      </tr>
+                      <tr>
+                        <th scope="row">Proxy DNS<sup>V4</sup>On board</th>
+                        <td>
+                          <button type="submit" class="btn btn-primary" @click="onBoardDNSV4ProxyEnable()"
+                            x-show="DNSV4ProxyStatus === false" :disabled="isLoading">
+                            Allow
+                          </button>
+                          <button type="submit" class="btn btn-danger" @click="onBoardDNSV4ProxyDisable()"
+                            x-show="DNSV4ProxyStatus === true" :disabled="isLoading">
+                            Disable
+                          </button>
+                        </td>
+                      </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="col">
+          <div class="card mb-3">
+            <div class="card-header">Setting TTL</div>
+            <div class="card-body">
+              <label for="TTLState" class="form-label">Status and value TTL</label>
+              <div class="row">
+                <div class="col">
+                  <div class="p-3 text-primary-emphasis bg-primary-subtle border border-primary-subtle rounded-3"
+                    x-show="ttlStatus === true">
+                    TTL is active
+                  </div>
+
+                  <div class="p-3 text-danger-emphasis bg-danger-subtle border border-danger-subtle rounded-3"
+                    x-show="ttlStatus === false">
+                    TTL not active
+                  </div>
+                </div>
+                <div class="col">
+                  <div class="p-3 text-info-emphasis bg-info-subtle border border-info-subtle rounded-3 mb-4"
+                    x-text="ttlvalue"></div>
+                </div>
+              </div>
+              <div class="card-text mb-3">
+                <div class="mb-4">
+                  <input type="text" class="form-control" id="ttlInput" placeholder="Giá trị TTL" x-model="newTTL" />
+                  <div id="ttlValueHelper" class="form-text">
+                    Set TTL value to 0 to disable.
+                  </div>
+                </div>
+                <div class="d-grid gap-1">
+                  <button class="btn btn-primary" type="button" @click="setTTL()">
+                    Change
+                  </button>
+                </div>
+              </div>
+              <div class="card-text">
+                <div class="d-flex flex-row gap-4 w-full">
+                  <p><a class="link-info link-opacity-50-hover link-offset-2" href="/watchcat.html">Go to WatchCat</a></p>
+                  <!-- </a> -->
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Restart loading modal box -->
+      <div class="modal-overlay" x-show="showModal">
+        <div class="loading-modal">
+          <div class="loading-text" style="display: flex; flex-direction: column">
+            <h3>This will restart the modem.</h3>
+            <p style="margin-top: 0.5rem">continue?</p>
+          </div>
+          <div class="d-grid gap-2 d-md-block">
+            <button class="btn btn-primary" type="button" @click="rebootDevice()">
+              Restart
+            </button>
+            <button class="btn btn-danger" type="button" @click="closeModal()">
+              Cancel
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Restart countdown modal box -->
+      <div class="modal-overlay" x-show="isRebooting">
+        <div class="loading-modal">
+          <div class="loader"></div>
+          <div class="loading-text" style="display: flex; flex-direction: column">
+            <h3>Restarting...</h3>
+            <p style="margin-top: 0.5rem">
+              Please wait
+              <span x-text="countdown" style="font-weight: 500"></span>
+              Second.
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </main>
+  <script src="js/dark-mode.js"></script>
+  <script>
+    function simpleSettings() {
+      return {
+        isLoading: false,
+        showSuccess: false,
+        showError: false,
+        isClean: true,
+        showModal: false,
+        isRebooting: false,
+        atcmd: "",
+        fetchATCommand: "",
+        countdown: 0,
+        atCommandResponse: "",
+        currentSettingsResponse: "",
+        ttldata: null,
+        ttlvalue: 0,
+        ttlStatus: false,
+        newTTL: null,
+        ipPassMode: "not specified",
+        ipPassStatus: false,
+        usbNetMode: "not specified",
+        currentUsbNetMode: "unknown",
+        DNSV6ProxyStatus: true,
+        DNSV4ProxyStatus: true,
+
+        closeModal() {
+          this.confirmModal = false;
+          this.showModal = false;
+        },
+
+        showRebootModal() {
+          this.showModal = true;
+        },
+
+        sendATCommand() {
+          if (!this.atcmd) {
+            // Use ATI as default command
+            this.atcmd = "ATI";
+            console.log(
+              "The AT command is empty, using ATI as the default command:",
+              this.atcmd
+            );
+          }
+          this.isLoading = true;
+          const encodedATCmd = encodeURIComponent(this.atcmd);
+          const url = `/cgi-bin/get_atcommand?atcmd=${encodedATCmd}`;
+
+          fetch(url)
+            .then((res) => {
+              if (!res.ok) {
+                throw new Error(`HTTP error! Status: ${res.status}`);
+              }
+              return res.text();
+            })
+            .then((data) => {
+              this.atCommandResponse = data;
+              this.isLoading = false;
+              this.isClean = false;
+              this.fetchCurrentSettings();
+            })
+            .catch((error) => {
+              console.error("error: ", error);
+              this.showError = true;
+              this.isLoading = false;
+            });
+        },
+
+        clearResponses() {
+          this.atCommandResponse = "";
+          this.isClean = true;
+        },
+
+        rebootDevice() {
+          this.atcmd = "AT+CFUN=1,1";
+          this.sendATCommand();
+
+          this.atCommandResponse = "";
+          this.showModal = false;
+          this.isRebooting = true;
+          this.countdown = 40;
+
+          // Countdown
+          const interval = setInterval(() => {
+            this.countdown--;
+            if (this.countdown === 0) {
+              clearInterval(interval);
+              this.isRebooting = false;
+              this.init();
+            }
+          }, 1000);
+        },
+
+        resetATCommands() {
+          this.atcmd = "AT&F";
+          this.sendATCommand();
+          console.log("reset Lệnh AT");
+          this.atcmd = "";
+          this.atCommandResponse = "";
+          this.showRebootModal();
+        },
+
+        ipPassThroughEnable() {
+          if (this.ipPassMode != "not specified") {
+            if (this.ipPassMode == "ETH") {
+              this.atcmd =
+                'AT+QMAP="MPDN_RULE",0,1,0,1,1,"FF:FF:FF:FF:FF:FF"';
+              this.sendATCommand();
+            } else if (this.ipPassMode == "USB") {
+              this.atcmd =
+                'AT+QMAP="MPDN_RULE",0,1,0,3,1,"FF:FF:FF:FF:FF:FF"';
+              this.sendATCommand();
+            } else {
+              console.error("Invalid IP passthrough mode");
+            }
+          } else {
+            console.error("IP transparent transmission mode not specified");
+          }
+        },
+
+        ipPassThroughDisable() {
+          this.atcmd = 'AT+QMAP="MPDN_RULE",0;+QMAPWAC=1';
+          this.sendATCommand();
+        },
+
+        onBoardDNSV6ProxyEnable() {
+          this.atcmd = 'AT+QMAP="DHCPV6DNS","enable"';
+          this.sendATCommand().then(() => {
+            this.fetchCurrentSettings();
+          });
+        },
+        onBoardDNSV4ProxyEnable() {
+          this.atcmd = 'AT+QMAP="DHCPV4DNS","enable"';
+          this.sendATCommand().then(() => {
+            this.fetchCurrentSettings();
+          });
+        },
+
+        onBoardDNSV6ProxyDisable() {
+          this.atcmd = 'AT+QMAP="DHCPV6DNS","disable"';
+          this.sendATCommand().then(() => {
+            this.fetchCurrentSettings();
+          });
+        },
+        onBoardDNSV4ProxyDisable() {
+          this.atcmd = 'AT+QMAP="DHCPV4DNS","disable"';
+          this.sendATCommand().then(() => {
+            this.fetchCurrentSettings();
+          });
+        },
+
+
+        usbNetModeChanger() {
+          if (this.usbNetMode != "not specified") {
+            if (this.usbNetMode == "RMNET") {
+              this.atcmd = 'AT+QCFG="usbnet",0;';
+              this.sendATCommand().then(() => {
+                this.rebootDevice();
+              });
+            } else if (this.usbNetMode == "ECM") {
+              this.atcmd = 'AT+QCFG="usbnet",1;';
+              this.sendATCommand().then(() => {
+                this.rebootDevice();
+              });
+            } else if (this.usbNetMode == "MBIM") {
+              this.atcmd = 'AT+QCFG="usbnet",2;';
+              this.sendATCommand().then(() => {
+                this.rebootDevice();
+              });
+            } else if (this.usbNetMode == "RNDIS") {
+              this.atcmd = 'AT+QCFG="usbnet",3;';
+              this.sendATCommand().then(() => {
+                this.rebootDevice();
+              });
+            } else {
+              console.log("USB network mode is invalid");
+            }
+          } else {
+            console.error("USB network mode not specified");
+          }
+        },
+
+        fetchCurrentSettings() {
+          this.fetchATCommand =
+            'AT+QMAP="MPDN_RULE";+QMAP="DHCPV6DNS";+QCFG="usbnet"';
+          fetch(
+            "/cgi-bin/get_atcommand?" +
+            new URLSearchParams({
+              atcmd: this.fetchATCommand,
+            })
+          )
+            .then((res) => {
+              return res.text();
+            })
+            .then((data) => {
+              // Set the value of currentSettingsResponse
+              this.currentSettingsResponse = data;
+              const currentData = data.split("\n");
+              console.log("OK: ", currentData);
+
+              const testEthpass = currentData[1].match(
+                /\+QMAP: "MPDN_rule",0,0,0,0,0/
+              );
+
+              if (testEthpass) {
+                this.ipPassStatus = false;
+              } else {
+                this.ipPassStatus = true;
+              }
+
+              const testDNSV6Proxy = currentData[6].match(
+                /\+QMAP: "DHCPV6DNS","enable"/
+              );
+
+              if (testDNSV6Proxy) {
+                this.DNSV6ProxyStatus = true;
+              } else {
+                this.DNSV6ProxyStatus = false;
+              }
+
+              const testUSBNet = currentData[9].match(
+                /\+QCFG: "usbnet",(\d)/
+              );
+
+              if (testUSBNet[1] == "0") {
+                this.currentUsbNetMode = "RMNET";
+              } else if (testUSBNet[1] == "1") {
+                this.currentUsbNetMode = "ECM";
+              } else if (testUSBNet[1] == "2") {
+                this.currentUsbNetMode = "MBIM";
+              } else if (testUSBNet[1] == "3") {
+                this.currentUsbNetMode = "RNDIS";
+              } else {
+                this.currentUsbNetMode = "unknown";
+              }
+
+              // Clear atcmd
+              this.atcmd = "";
+            })
+            .catch((error) => {
+              console.error("error: ", error);
+              this.showError = true;
+            });
+        },
+
+        fetchTTL() {
+          fetch("/cgi-bin/get_ttl_status")
+            .then((res) => res.json())
+            .then((data) => {
+              this.ttldata = data;
+              this.ttlStatus = this.ttldata.isEnabled;
+              this.ttlvalue = this.ttldata.ttl;
+            });
+        },
+
+        setTTL() {
+          this.isLoading = true; // Set loading status during TTL updates
+          const ttlval = this.newTTL;
+          fetch(
+            "/cgi-bin/set_ttl?" + new URLSearchParams({ ttlvalue: ttlval })
+          )
+            .then((res) => res.text()) // Use res.text() instead of res.json()
+            .then((data) => {
+              // Manually process response data
+              console.log("Server response: ", data);
+              // You can try to parse the JSON manually or process the response as needed
+
+              // Once TTL is updated, get updated TTL data
+              this.fetchTTL();
+              this.isLoading = false; // Set loading status back to false
+            })
+            .catch((error) => {
+              console.error("Error updating TTL: ", error);
+              this.isLoading = false; // Ensure loading status is handled correctly when errors occur
+            });
+        },
+        init() {
+          this.fetchCurrentSettings();
+          this.fetchTTL();
+        },
+      };
+    }
+  </script>
+</body>
+
+</html>
