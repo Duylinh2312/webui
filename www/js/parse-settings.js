@@ -20,25 +20,25 @@ function parseCurrentSettings(rawdata) {
     
 
     if (this.cellLock4GStatus == 1 && this.cellLock5GStatus == 1) {
-      this.cellLockStatus = "已锁定4G和5G";
+      this.cellLockStatus = "4G and 5G locked";
     } else if (this.cellLock4GStatus == 1) {
-      this.cellLockStatus = "已锁定4G";
+      this.cellLockStatus = "Locked 4G";
     }
     else if (this.cellLock5GStatus == 1) {
-      this.cellLockStatus = "已锁定5G";
+      this.cellLockStatus = "5G locked";
     }
     else {
-      this.cellLockStatus = "未锁定";
+      this.cellLockStatus = "Unlocked";
     }
 
     if (this.nrModeControlStatus == 0) {
-      this.nrModeControlStatus = "未禁用";
+      this.nrModeControlStatus = "Not disabled";
     }
     else if (this.nrModeControlStatus == 1) {
-      this.nrModeControlStatus = "禁用SA";
+      this.nrModeControlStatus = "Disable SA";
     }
     else {
-      this.nrModeControlStatus = "禁用NSA";
+      this.nrModeControlStatus = "Disable NSA";
     }
 
     return {
