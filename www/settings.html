@@ -77,16 +77,16 @@
                       aria-describedby="atCommandInput" x-model="atcmd" @keydown.enter="sendATCommand()" />
                     <div id="atCommandInputHelper" class="form-text">
                 	Separate multiple commands with commas (,)<br>
-			AT+QENG="neighbourcell" | Check neighboring CELL ID.<br>
-			AT+QNWLOCK="common/4g",1,1700,xxx (xxx: SET CELL ID).<br>
-			AT+QNWPREFCFG="mode_pref",LTE:NR5G | Lock LTE and 5G.<br>
-		 	AT+QNWPREFCFG="mode_pref",AUTO | AUTO mode.<br>
-			AT+CGDCONT? | Check APN.<br>
-			AT+CGDCONT=1,"IP","APN" | Set APN.<br>
-			AT+CGSN | Show IMEI.<br>
-			AT+EGMR=1,7,"Your IMEI" | Change IMEI.<br>
-			AT+CGPADDR | Check IP Wan.<br>
-			AT+CFUN=1,1 | Restart Modem.
+			* AT+QENG="neighbourcell" | Check neighboring CELL ID.<br>
+			* AT+QNWLOCK="common/4g",1,1700,xxx (xxx: SET CELL ID).<br>
+			* AT+QNWPREFCFG="mode_pref",LTE:NR5G | Lock LTE and 5G.<br>
+		 	* AT+QNWPREFCFG="mode_pref",AUTO | AUTO mode.<br>
+			* AT+CGDCONT? | Check APN.<br>
+			* AT+CGDCONT=1,"IP","APN" | Set APN.<br>
+			* AT+CGSN | Show IMEI.<br>
+			* AT+EGMR=1,7,"Your IMEI" | Change IMEI.<br>
+			* AT+CGPADDR | Check IP Wan.<br>
+			* AT+CFUN=1,1 | Restart Modem.
 			</div>
                   </div>
                   <div class="d-grid gap-2 d-md-flex justify-content-md-start">
